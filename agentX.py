@@ -1,18 +1,10 @@
 import streamlit as st
 import time
+# Import the new module from the agents directory
+from agents.llm_gemini import get_gemini_response
 
 # Set page configuration with a wide layout and a title.
 st.set_page_config(layout="wide", page_title="AI Chatbot Agent", page_icon="🤖")
-
-# --- AI Model Placeholder ---
-# This function simulates an AI model's response.
-def get_ai_response(user_input):
-    """
-    This function simulates an AI model's response.
-    Replace this with your actual agentic AI logic.
-    """
-    time.sleep(1)  # Simulate processing time
-    return f"🤖 My agentic response to your input: **'{user_input}'**"
 
 # --- Initialize Session State ---
 if "messages" not in st.session_state:
@@ -47,7 +39,6 @@ with st.sidebar:
 st.title("🤖 Agentic AI Chatbot")
 
 # --- Conversation History Container ---
-# Use a placeholder to ensure chat history stays at the top.
 chat_placeholder = st.empty()
 
 with chat_placeholder.container():
@@ -68,7 +59,8 @@ if user_input := st.chat_input("What do you need help with?"):
         # Generate and display assistant's response
         with st.chat_message("assistant", avatar="🤖"):
             with st.spinner("Thinking..."):
-                response = get_ai_response(user_input)
+                # Call the new function from the llm_gemini module
+                response = get_gemini_response(user_input)
                 st.write(response)
 
             # Add assistant's response to history
