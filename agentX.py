@@ -1,7 +1,8 @@
 import streamlit as st
 import time
-# Import the new module from the agents directory
 from agents.llm_gemini import get_gemini_response
+from utils.pdf_reader import extract_text_from_pdf
+from agents.prompt import CHATBOT_PROMPT, RESUME_REVIEWER_PROMPT, RECRUITER_PROMPT
 
 # Set page configuration with a wide layout and a title.
 st.set_page_config(layout="wide", page_title="AI Chatbot Agent", page_icon="🤖")
@@ -11,8 +12,8 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = {
-        "resume": None,
-        "job_description": None
+        "resume": {"name": None, "content": None},
+        "job_description": {"name": None, "content": None}
     }
 
 # --- Left Panel for Document Upload and Display ---
@@ -24,34 +25,50 @@ with st.sidebar:
     # Resume uploader
     uploaded_cv = st.file_uploader(
         "Choose your resume", 
-        type=["pdf", "docx", "txt", "csv"],
+        type=["pdf"],
         key="cv_uploader"
     )
 
     if uploaded_cv:
-        st.session_state.uploaded_files["resume"] = uploaded_cv
-        st.toast(f"Resume **{uploaded_cv.name}** uploaded successfully!", icon="✅")
+        # Check if a new file has been uploaded
+        if st.session_state.uploaded_files["resume"]["name"] != uploaded_cv.name:
+            st.session_state.uploaded_files["resume"]["name"] = uploaded_cv.name
+            
+            # Read the file content
+            text_content = extract_text_from_pdf(uploaded_cv)
+            st.session_state.uploaded_files["resume"]["content"] = text_content
+            
+            st.toast(f"Resume **{uploaded_cv.name}** uploaded successfully!", icon="✅")
+            st.rerun()
 
     st.markdown("---")
 
     # Job Description uploader
     uploaded_jd = st.file_uploader(
         "Choose a job description",
-        type=["pdf", "docx", "txt", "csv"],
+        type=["pdf"],
         key="jd_uploader"
     )
 
     if uploaded_jd:
-        st.session_state.uploaded_files["job_description"] = uploaded_jd
-        st.toast(f"Job Description **{uploaded_jd.name}** uploaded successfully!", icon="✅")
-
+        # Check if a new file has been uploaded
+        if st.session_state.uploaded_files["job_description"]["name"] != uploaded_jd.name:
+            st.session_state.uploaded_files["job_description"]["name"] = uploaded_jd.name
+            
+            # Read the file content
+            text_content = extract_text_from_pdf(uploaded_jd)
+            st.session_state.uploaded_files["job_description"]["content"] = text_content
+            
+            st.toast(f"Job Description **{uploaded_jd.name}** uploaded successfully!", icon="✅")
+            st.rerun()
+            
     st.subheader("Uploaded Files")
-    if st.session_state.uploaded_files["resume"]:
-        st.markdown(f"- **Resume:** `{st.session_state.uploaded_files['resume'].name}`")
-    if st.session_state.uploaded_files["job_description"]:
-        st.markdown(f"- **Job Description:** `{st.session_state.uploaded_files['job_description'].name}`")
+    if st.session_state.uploaded_files["resume"]["name"]:
+        st.markdown(f"- **Resume:** `{st.session_state.uploaded_files['resume']['name']}`")
+    if st.session_state.uploaded_files["job_description"]["name"]:
+        st.markdown(f"- **Job Description:** `{st.session_state.uploaded_files['job_description']['name']}`")
     
-    if not st.session_state.uploaded_files["resume"] and not st.session_state.uploaded_files["job_description"]:
+    if not st.session_state.uploaded_files["resume"]["name"] and not st.session_state.uploaded_files["job_description"]["name"]:
         st.markdown("No documents uploaded yet.")
 
 # --- Main Content Area: Chatbot Interface ---
@@ -66,7 +83,24 @@ with chat_placeholder.container():
             st.write(message["content"])
 
 # --- Text Input at the bottom ---
-if user_input := st.chat_input("Please upload your CV and the JD, then I will help you with your interview?"):
+if user_input := st.chat_input("What do you need help with?"):
+    # Determine which prompt to use based on uploaded files
+    resume_content = st.session_state.uploaded_files["resume"]["content"]
+    jd_content = st.session_state.uploaded_files["job_description"]["content"]
+
+    if resume_content and jd_content:
+        # Use the recruiter prompt if both files are present
+        full_query = RECRUITER_PROMPT.format(resume_content=resume_content, jd_content=jd_content)
+    elif resume_content:
+        # Use the resume reviewer prompt if only a resume is present
+        full_query = RESUME_REVIEWER_PROMPT.format(resume_content=resume_content)
+    else:
+        # Default to the general chatbot prompt
+        full_query = CHATBOT_PROMPT
+    
+    # Append the user's message to the determined prompt
+    full_query += "\n\nUser's request: " + user_input
+
     # Add user message to history
     st.session_state.messages.append({"role": "user", "content": user_input, "avatar": "🧑‍💻"})
 
@@ -78,8 +112,8 @@ if user_input := st.chat_input("Please upload your CV and the JD, then I will he
         # Generate and display assistant's response
         with st.chat_message("assistant", avatar="🤖"):
             with st.spinner("Thinking..."):
-                # Call the new function from the llm_gemini module
-                response = get_gemini_response(user_input)
+                # Pass the full query with the context-aware prompt to the LLM
+                response = get_gemini_response(full_query)
                 st.write(response)
 
             # Add assistant's response to history
