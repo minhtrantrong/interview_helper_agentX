@@ -89,17 +89,21 @@ if user_input := st.chat_input("What do you need help with?"):
                 
                 if resume_content and jd_content:
                     recruiter_agent = RecruiterAgent()
-                    response = recruiter_agent.run_evaluation(
+                    run_response = recruiter_agent.run_evaluation(
                         resume_content=resume_content,
                         jd_content=jd_content,
                         user_request=user_input
                     )
+                    response = run_response.content
+
                 elif resume_content:
                     resume_reviewer_agent = ResumeReviewerAgent()
-                    response = resume_reviewer_agent.run_review(
+                    run_response = resume_reviewer_agent.run_review(
                         resume_content=resume_content,
                         user_request=user_input
                     )
+                    response = run_response.content
+
                 else:
                     full_query = CHATBOT_PROMPT + "\n\nUser's request: " + user_input
                     response = llm._call(full_query)
