@@ -14,25 +14,26 @@ This is an agentic AI chatbot application built using Streamlit. It features a c
 
 Follow these steps to get the application up and running on your local machine.
 
-### 1. Clone the repository
+## 1. Clone the repository
 
-#### bash
+## bash
 git clone git@github.com:minhtrantrong/interview_helper_agentX.git
 cd your-repo-name
 
-# Create a virtual environment
+## Create a virtual environment
 python -m venv venv
 
-# Activate the virtual environment
-# On Windows:
+
+## Activate the virtual environment
+### On Windows:
 venv\Scripts\activate
-# On macOS/Linux:
+### On macOS/Linux:
 source venv/bin/activate
 
-# Install the required packages
+## Install the required packages
 pip install -r requirements.txt
 
-#### Configure your API Key
+## Configure your API Key
 The application requires a Google Gemini API key to function.
 
 Get an API key from Google AI Studio.
@@ -43,10 +44,7 @@ Add your API key to this file in the following format:
 
 GEMINI_API_KEY="YOUR_API_KEY_HERE"
 Make sure to replace YOUR_API_KEY_HERE with your actual key.
-#### Run the application
+## Run the application
 Once the setup is complete, you can start the Streamlit application.
-
-Bash
-
-streamlit run agentX.py
+    `streamlit run agentX.py`
 
