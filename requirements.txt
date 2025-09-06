@@ -2,3 +2,7 @@ streamlit>=1.36.0
 google-generativeai>=0.8.1
 python-dotenv>=1.0.1
 pypdf==6.0.0
+agno==1.8.1
+langchain
+langchain_community
+langchain_openai
