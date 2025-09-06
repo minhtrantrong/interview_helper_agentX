@@ -16,22 +16,22 @@ Follow these steps to get the application up and running on your local machine.
 
 ## 1. Clone the repository
 
-## bash
-git clone git@github.com:minhtrantrong/interview_helper_agentX.git
-cd your-repo-name
+#### bash
+`git clone git@github.com:minhtrantrong/interview_helper_agentX.git`
+`cd your-repo-name`
 
 ## Create a virtual environment
-python -m venv venv
+`python -m venv venv`
 
 
 ## Activate the virtual environment
 ### On Windows:
-venv\Scripts\activate
+`.\venv\Scripts\activate`
 ### On macOS/Linux:
-source venv/bin/activate
+`source venv/bin/activate`
 
 ## Install the required packages
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 ## Configure your API Key
 The application requires a Google Gemini API key to function.
