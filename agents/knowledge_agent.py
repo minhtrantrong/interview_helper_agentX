@@ -12,12 +12,13 @@ GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 class KnowledgeAgent(Agent):
     """An agent that identifies skill gaps and suggests learning paths."""
     
-    name: str = "Knowledge Agent"
+    # name: str = "Knowledge Agent"
     description = "Analyzes job descriptions and resumes to identify lacking skills and provides guidance on gaining those skills."
     
     def __init__(self, **kwargs):
         # We pass your custom llm instance to the agent
         super().__init__(model=Gemini(id="gemini-2.5-flash"), **kwargs)
+        self.name = "Knowledge Agent"
         
     def execute(self, resume_content: str, jd_content: str, user_request: str) -> str:
         """

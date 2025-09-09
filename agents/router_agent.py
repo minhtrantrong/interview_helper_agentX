@@ -19,39 +19,113 @@ class RouterAgent(Agent):
     description = "Routes user queries to the appropriate agent based on the user's intent."
     
     def __init__(self, 
-                 recruiter_agent: Agent, 
-                 knowledge_agent: Agent, 
+                 agents: List[Agent], 
                  resume_content: str, 
                  jd_content: str, 
                  user_request: str, 
                  **kwargs):
-        self.recruiter_agent = recruiter_agent
-        self.knowledge_agent = knowledge_agent
+        self.available_agents = {str(agent.name).replace(" ", "_").lower(): agent for agent in agents}
         self.user_request = user_request
         self.resume_content = resume_content
         self.jd_content = jd_content
         self.response = None
         # Correctly create a list of Agno-compatible tools from the agents
-        def recruiter_agent_tool(self):
-            return self.recruiter_agent.execute(self.resume_content, 
-                                                self.jd_content, 
-                                                self.user_request)
-        def knowledge_agent_tool(self):
-            return self.knowledge_agent.execute(self.resume_content, 
-                                                self.jd_content, 
-                                                self.user_request)
-        
-        tools = [recruiter_agent_tool, knowledge_agent_tool]
+        tools = [self._create_tool_for_agent(agent) for agent in agents]
         
         super().__init__(
             model=llm,
             tools=tools, 
             instructions=[ROUTER_PROMPT],
-            show_tool_calls=True,
             **kwargs
         )
+    def _create_tool_for_agent(self, agent: Agent):
+        agent_name = str(agent.name).replace(" ", "_").lower()
+        tool_desc = f"Use this tool to route a message to the {agent.name}."
+               
+        def recruiter_agent_tool():
+            return self.available_agents['recruiter_agent'].execute(
+                self.resume_content,
+                self.jd_content,
+                self.user_request
+            )
 
-    def execute(self) -> ModelResponse:
-        # full_query = f"{ROUTER_PROMPT}\n\nUser's Request: {self.user_request}"
+        def knowledge_agent_tool():
+            return self.available_agents['knowledge_agent'].execute(
+                self.resume_content,
+                self.jd_content,
+                self.user_request
+            )
+        
+        if agent_name == "recruiter_agent":
+            return tool(
+                name="recruiter_agent_tool",
+                description=tool_desc,
+            )(recruiter_agent_tool)
+        elif agent_name == "knowledge_agent":
+            return tool(
+                name="knowledge_agent_tool",
+                description=tool_desc,
+            )(knowledge_agent_tool)
+        else:
+            print(f"Agent name provided {agent_name} for tool creation.")
+            raise ValueError(f"Invalid agent name provided {agent_name} for tool creation.")
+
+    def execute(self):
         full_query = f"User's Request: {self.user_request}"
-        return self.run(full_query)
+        response = self.run(full_query)
+        return response
+
+# class RouterAgent(Agent):
+#     name = "Router Agent"
+#     description = "Routes user queries to the appropriate agent based on the user's intent."
+    
+#     def __init__(self, agents: List[Agent], 
+#                  resume_content: str, 
+#                  jd_content: str, 
+#                  user_request: str, 
+#                  **kwargs):
+#         self.available_agents = {str(agent.name).replace(" ", "_").lower(): agent for agent in agents}
+#         self.user_request = user_request
+#         self.resume_content = resume_content
+#         self.jd_content = jd_content
+#         self.response = None
+#         # Correctly create a list of Agno-compatible tools from the agents
+#         tools = [self._create_tool_for_agent(agent) for agent in agents]
+        
+#         super().__init__(
+#             model=llm,
+#             tools=tools, 
+#             instructions=[ROUTER_PROMPT],
+#             **kwargs
+#         )
+        
+#     def _create_tool_for_agent(self, agent: Agent):
+#         agent_name = str(agent.name).replace(" ", "_").lower()
+#         tool_desc = f"Use this tool to route a message to the {agent.name}."
+        
+#         # Define the Pydantic model for the tool's parameters
+#         class RouteParams(BaseModel):
+#             message: str = Field(..., description="The user's original message to be passed to the agent.")
+        
+#         # The tool's function needs to be a proper callable that the model can invoke.
+#         # This function will handle the routing logic.
+#         def route_to_agent_tool(agent_name) :
+#             self.response = self.available_agents[agent_name].execute(self.resume_content, 
+#                                                                       self.jd_content, 
+#                                                                       self.user_request)
+#             logger.info(f"Route to {agent_name} successful with response: {self.response}")
+#             return self.response
+        
+
+#         return tool(
+#             name=agent_name,
+#             description=tool_desc,
+#         )(route_to_agent_tool)
+
+#     def execute(self) -> ModelResponse:
+#         # full_query = f"{ROUTER_PROMPT}\n\nUser's Request: {self.user_request}"
+#         full_query = f"{ROUTER_PROMPT}\n\nUser's Request: {self.user_request}"
+#         # response_content = self.run(full_query)
+
+#         # We now have the content from the executed agent.
+#         return self.run(full_query)

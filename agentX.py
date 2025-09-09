@@ -106,9 +106,10 @@ if user_input := st.chat_input("What do you need help with?"):
                 jd_content = st.session_state.uploaded_files["job_description"]["content"]
                 
                 if resume_content and jd_content:
+                    print("Team router working ...")
                     # agents=[recruiter_agent, knowledge_agent]
                     # router_agent = RouterAgent(agents, resume_content, jd_content, user_input)
-                    print("Team router working ...")
+                    
                     # router_agent = RouterAgent(recruiter_agent, 
                     #                            knowledge_agent, 
                     #                            resume_content, 
@@ -136,6 +137,7 @@ if user_input := st.chat_input("What do you need help with?"):
                     response = router_response.content
 
                 elif resume_content:
+                    print("Review agent working ...")
                     resume_reviewer_agent = ResumeReviewerAgent()
                     run_response = resume_reviewer_agent.execute(
                         resume_content=resume_content,
@@ -144,6 +146,7 @@ if user_input := st.chat_input("What do you need help with?"):
                     response = run_response.content
 
                 else:
+                    print("Chatbot agent working ...")
                     full_query = CHATBOT_PROMPT + "\n\nUser's request: " + user_input
                     response = llm._call(full_query)
                 

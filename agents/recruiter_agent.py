@@ -12,12 +12,13 @@ GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 class RecruiterAgent(Agent):
     """An agent that acts as a recruiter to evaluate a resume against a job description."""
     
-    name: str = "Recruiter Agent"
+    # name: str = "Recruiter Agent"
     description = "Evaluates a resume and compares it against a job description."
     
     def __init__(self, **kwargs):
         super().__init__(model=Gemini(id="gemini-2.5-flash"), **kwargs)
-    
+        self.name = "Recruiter Agent"
+        
     def execute(self, resume_content: str, jd_content: str, user_request: str) -> str:
         """
         Runs the recruiter evaluation process.
