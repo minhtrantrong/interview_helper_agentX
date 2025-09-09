@@ -4,7 +4,15 @@ from utils.pdf_reader import extract_text_from_pdf
 from agents.llm_gemini import llm
 from agents.resume_reviewer import ResumeReviewerAgent
 from agents.recruiter_agent import RecruiterAgent
-from agents.prompt import CHATBOT_PROMPT
+from agents.router_agent import RouterAgent 
+from agents.knowledge_agent import KnowledgeAgent
+from agents.prompt import CHATBOT_PROMPT, ROUTER_PROMPT, TOOLS_PROMPT
+from agno.team import Team
+from agno.agent import Agent
+from agno.models.google import Gemini
+from langchain.prompts import PromptTemplate
+from dotenv import load_dotenv
+load_dotenv()
 
 # Set page configuration with a wide layout and a title.
 st.set_page_config(layout="wide", page_title="AI Chatbot Agent", page_icon="🤖")
@@ -73,6 +81,16 @@ with chat_placeholder.container():
     for message in st.session_state.messages:
         with st.chat_message(message["role"], avatar=message.get("avatar")):
             st.write(message["content"])
+# Define agents and team:
+recruiter_agent = RecruiterAgent()
+knowledge_agent = KnowledgeAgent()
+router_team = Team(
+    name="Career Services Team",
+    mode="route", # The Team will act as a router
+    model=llm, # The routing logic will be powered by your Gemini LLM
+    members=[recruiter_agent, knowledge_agent],
+    markdown=True,
+)
 
 # --- Text Input at the bottom ---
 if user_input := st.chat_input("What do you need help with?"):
@@ -88,17 +106,38 @@ if user_input := st.chat_input("What do you need help with?"):
                 jd_content = st.session_state.uploaded_files["job_description"]["content"]
                 
                 if resume_content and jd_content:
-                    recruiter_agent = RecruiterAgent()
-                    run_response = recruiter_agent.run_evaluation(
-                        resume_content=resume_content,
-                        jd_content=jd_content,
-                        user_request=user_input
+                    # agents=[recruiter_agent, knowledge_agent]
+                    # router_agent = RouterAgent(agents, resume_content, jd_content, user_input)
+                    print("Team router working ...")
+                    # router_agent = RouterAgent(recruiter_agent, 
+                    #                            knowledge_agent, 
+                    #                            resume_content, 
+                    #                            jd_content, 
+                    #                            user_input)
+                    # router_response = router_agent.execute()
+                    def recruiter_agent_tool(resume_content, jd_content, user_input):
+                        return recruiter_agent.execute(resume_content, jd_content, user_input)
+                    def knowledge_agent_tool(resume_content, jd_content, user_input):
+                        return knowledge_agent.execute(resume_content, jd_content, user_input)
+                    
+                    prompt = PromptTemplate.from_template(TOOLS_PROMPT)
+                    formatted_prompt = prompt.format(resume_content=resume_content, 
+                                                     jd_content=jd_content, 
+                                                     user_input=user_input)
+                    router = Agent(
+                        model=Gemini(id="gemini-2.5-flash"),
+                        tools = [recruiter_agent_tool, knowledge_agent_tool],
+                        instructions=formatted_prompt,
+                        show_tool_calls=True,
                     )
-                    response = run_response.content
+                    router_response = router.run(f"user input: {user_input}")
+                    # router_response = router_team.run(user_input)
+                    # print(router_response)
+                    response = router_response.content
 
                 elif resume_content:
                     resume_reviewer_agent = ResumeReviewerAgent()
-                    run_response = resume_reviewer_agent.run_review(
+                    run_response = resume_reviewer_agent.execute(
                         resume_content=resume_content,
                         user_request=user_input
                     )

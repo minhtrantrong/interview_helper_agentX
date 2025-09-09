@@ -12,13 +12,13 @@ GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 class ResumeReviewerAgent(Agent):
     """An agent that reviews a resume and provides professional feedback."""
     
-    name = "Resume Reviewer Agent"
+    name: str = "Resume Reviewer Agent"
     description = "Provides professional and constructive feedback on a resume."
     
     def __init__(self, **kwargs):
         super().__init__(model=Gemini(id="gemini-2.5-flash"), **kwargs)
     
-    def run_review(self, resume_content: str, user_request: str) -> str:
+    def execute(self, resume_content: str, user_request: str) -> str:
         """
         Runs the resume review process.
         :param resume_content: The content of the user's resume.
