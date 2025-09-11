@@ -11,6 +11,10 @@ from agno.team import Team
 from agno.agent import Agent
 from agno.models.google import Gemini
 from langchain.prompts import PromptTemplate
+from agno.tools import tool
+from agents.qna_agent import QnAAgent
+
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -84,6 +88,7 @@ with chat_placeholder.container():
 # Define agents and team:
 recruiter_agent = RecruiterAgent()
 knowledge_agent = KnowledgeAgent()
+qna_agent = QnAAgent()
 router_team = Team(
     name="Career Services Team",
     mode="route", # The Team will act as a router
@@ -116,18 +121,50 @@ if user_input := st.chat_input("What do you need help with?"):
                     #                            jd_content, 
                     #                            user_input)
                     # router_response = router_agent.execute()
-                    def recruiter_agent_tool(resume_content, jd_content, user_input):
+                    # def recruiter_agent_tool(resume_content, jd_content, user_input):
+                    #     return recruiter_agent.execute(resume_content, jd_content, user_input)
+                    # def knowledge_agent_tool(resume_content, jd_content, user_input):
+                    #     return knowledge_agent.execute(resume_content, jd_content, user_input)
+                    @tool
+                    def recruiter_agent_tool() -> str:
+                        """
+                        Use this tool when the user is asking for feedback, review, or improvement 
+                        suggestions on their resume in relation to a job description. 
+                        Example queries: 
+                        - "Can you review my resume?" 
+                        - "What do recruiters think about my CV for this role?" 
+                        - "How can I improve my resume for this internship?"
+                        """
                         return recruiter_agent.execute(resume_content, jd_content, user_input)
-                    def knowledge_agent_tool(resume_content, jd_content, user_input):
+
+                    @tool
+                    def knowledge_agent_tool() -> str:
+                        """
+                        Use this tool when the user is asking about skill or knowledge gaps based on 
+                        their resume and the job description, or seeking guidance on how to learn new skills. 
+                        Example queries:
+                        - "What skills am I missing for this job?" 
+                        - "Which technologies should I study to match this role?" 
+                        - "How can I improve my knowledge for the requirements listed?"
+                        """
                         return knowledge_agent.execute(resume_content, jd_content, user_input)
                     
+                    @tool
+                    def qna_agent_tool() -> dict:
+                        """
+                        Use the QnA Agent to generate recruiter-style interview questions.
+                        - Input: CV data, JD data
+                        - Output: Dict grouped by skill → {Level 1, Level 2, Level 3}
+                        """
+                        return qna_agent.execute(resume_content, jd_content)
+                                        
                     prompt = PromptTemplate.from_template(TOOLS_PROMPT)
                     formatted_prompt = prompt.format(resume_content=resume_content, 
                                                      jd_content=jd_content, 
                                                      user_input=user_input)
                     router = Agent(
                         model=Gemini(id="gemini-2.5-flash"),
-                        tools = [recruiter_agent_tool, knowledge_agent_tool],
+                        tools = [recruiter_agent_tool, knowledge_agent_tool, qna_agent_tool],
                         instructions=formatted_prompt,
                         show_tool_calls=True,
                     )
