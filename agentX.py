@@ -13,6 +13,7 @@ from agno.models.google import Gemini
 from langchain.prompts import PromptTemplate
 from agno.tools import tool
 from agents.qna_agent import QnAAgent
+from agents.extract_agent import ExtractionAgent
 
 
 from dotenv import load_dotenv
@@ -89,6 +90,7 @@ with chat_placeholder.container():
 recruiter_agent = RecruiterAgent()
 knowledge_agent = KnowledgeAgent()
 qna_agent = QnAAgent()
+extract_agent = ExtractionAgent()
 router_team = Team(
     name="Career Services Team",
     mode="route", # The Team will act as a router
@@ -157,6 +159,19 @@ if user_input := st.chat_input("What do you need help with?"):
                         - Output: Dict grouped by skill → {Level 1, Level 2, Level 3}
                         """
                         return qna_agent.execute(resume_content, jd_content)
+                    
+                    @tool
+                    def extract_agent_tool() -> dict:
+                        """
+                        Use this tool to extract structured information from both Resume and Job Description.
+                        - Input: Raw text of CV (resume_content) and Job Description (jd_content)
+                        - Output: Dict with two sections:
+                            {
+                            "resume": { ... standardized fields ... },
+                            "job_description": { ... standardized fields ... }
+                            }
+                        """
+                        return extract_agent.execute(resume_content, jd_content)
                                         
                     prompt = PromptTemplate.from_template(TOOLS_PROMPT)
                     formatted_prompt = prompt.format(resume_content=resume_content, 
@@ -164,7 +179,7 @@ if user_input := st.chat_input("What do you need help with?"):
                                                      user_input=user_input)
                     router = Agent(
                         model=Gemini(id="gemini-2.5-flash"),
-                        tools = [recruiter_agent_tool, knowledge_agent_tool, qna_agent_tool],
+                        tools = [recruiter_agent_tool, knowledge_agent_tool, qna_agent_tool, extract_agent_tool],
                         instructions=formatted_prompt,
                         show_tool_calls=True,
                     )

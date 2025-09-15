@@ -93,3 +93,54 @@ TOOLS_PROMPT = """Base on the use message and select appropriate tool and its pa
     user_input: {user_input}
     
 """
+
+RESUME_PROMPT = """
+Extract the following fields from the resume and return valid JSON strictly in this schema:
+{
+  "name": "string",
+  "email": "string",
+  "phone": "string",
+  "education": [
+    {
+      "degree": "string",
+      "institution": "string",
+      "year": "string"
+    }
+  ],
+  "work_experience": [
+    {
+      "company": "string",
+      "role": "string",
+      "duration": "string",
+      "achievements": "string"
+    }
+  ],
+  "skills": ["string"],
+  "certifications": ["string"],
+  "languages": ["string"]
+}
+
+Resume:
+{resume_content}
+"""
+
+JD_PROMPT = """
+Extract the following fields from the job description and return valid JSON strictly in this schema:
+{
+  "job_title": "string",
+  "company": "string",
+  "location": "string",
+  "responsibilities": ["string"],
+  "required_skills": ["string"],
+  "preferred_skills": ["string"],
+  "experience": {
+    "years": "string",
+    "domain": "string"
+  },
+  "education_requirement": "string",
+  "salary": "string"
+}
+
+Job Description:
+{jd_content}
+"""
