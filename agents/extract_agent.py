@@ -18,7 +18,6 @@ class ExtractionAgent(Agent):
         super().__init__(model=Gemini(id="gemini-2.5-flash"), **kwargs)
         self.name = "Extraction Agent"
 
-    @tool
     def extract_resume_fields(self, resume_content: str) -> dict:
         query = f"""
         Extract the following fields from the resume and return valid JSON strictly in this schema:
@@ -50,12 +49,14 @@ class ExtractionAgent(Agent):
         {resume_content}
         """
         response = self.run(query)
-        try:
-            return json.loads(response)
-        except:
-            return {"raw_response": response}
+        raw_text = response.output if hasattr(response, "output") else str(response)
 
-    @tool
+        try:
+            return json.loads(raw_text)
+        except Exception:
+            return {"raw_response": raw_text}
+
+
     def extract_jd_fields(self, jd_content: str) -> dict:
         query = f"""
         Extract the following fields from the job description and return valid JSON strictly in this schema:
@@ -78,10 +79,12 @@ class ExtractionAgent(Agent):
         {jd_content}
         """
         response = self.run(query)
+        raw_text = response.output if hasattr(response, "output") else str(response)
+
         try:
-            return json.loads(response)
-        except:
-            return {"raw_response": response}
+            return json.loads(raw_text)
+        except Exception:
+            return {"raw_response": raw_text}
     def execute(self, resume_content: str, jd_content: str) -> dict:
             """
             Run both resume and job description extraction, then print results.

@@ -164,7 +164,7 @@ if user_input := st.chat_input("What do you need help with?"):
                     def extract_agent_tool() -> dict:
                         """
                         Use this tool to extract structured information from both Resume and Job Description.
-                        - Input: Raw text of CV (resume_content) and Job Description (jd_content)
+                        - Input: CV data, JD data
                         - Output: Dict with two sections:
                             {
                             "resume": { ... standardized fields ... },
