@@ -36,20 +36,22 @@ Follow these steps to get the application up and running on your local machine.
 ## Configure database TIDB
 database name: recruitment
 SQL editor:
-CREATE TABLE resumes (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NULL,
-    email VARCHAR(255) NULL,
-    phone VARCHAR(50) NULL,
-    education JSON NULL,
-    work_experience JSON NULL,
-    skills JSON NULL,
-    certifications JSON NULL,
-    languages JSON NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+`CREATE TABLE candidates (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    job_id BIGINT(20),
+    name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    education JSON,
+    work_experience JSON,
+    skills JSON,
+    certifications JSON,
+    languages JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    match_score INT(11)
+);`
 
-CREATE TABLE job_descriptions (
+`CREATE TABLE job_descriptions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     job_title VARCHAR(255) NULL,
     company VARCHAR(255) NULL,
@@ -62,7 +64,7 @@ CREATE TABLE job_descriptions (
     salary VARCHAR(100) NULL,
     jd_hash CHAR(64) NULL UNIQUE, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+);`
 
 ## Configure your API Key
 The application requires a Google Gemini API key to function.

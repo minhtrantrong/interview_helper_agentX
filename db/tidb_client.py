@@ -16,8 +16,10 @@ def get_tidb_connection():
         user=os.getenv("TIDB_USERNAME"),
         password=os.getenv("TIDB_PASSWORD"),
         database=os.getenv("TIDB_DATABASE"),
-        ssl_verify_cert=True,
-        ssl_verify_identity=True
+        autocommit=True
+        # ssl_verify_cert=True,
+        # ssl_verify_identity=True
+        # ssl_disabled=True 
     )
 
 def insert_job_description(cursor, jd_content, jd_data):

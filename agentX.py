@@ -4,7 +4,6 @@ from utils.pdf_reader import extract_text_from_pdf
 from agents.llm_gemini import llm
 from agents.resume_reviewer import ResumeReviewerAgent
 from agents.recruiter_agent import RecruiterAgent
-from agents.router_agent import RouterAgent 
 from agents.knowledge_agent import KnowledgeAgent
 from agents.prompt import CHATBOT_PROMPT, ROUTER_PROMPT, TOOLS_PROMPT
 from agno.team import Team
@@ -114,19 +113,7 @@ if user_input := st.chat_input("What do you need help with?"):
                 
                 if resume_content and jd_content:
                     print("Team router working ...")
-                    # agents=[recruiter_agent, knowledge_agent]
-                    # router_agent = RouterAgent(agents, resume_content, jd_content, user_input)
                     
-                    # router_agent = RouterAgent(recruiter_agent, 
-                    #                            knowledge_agent, 
-                    #                            resume_content, 
-                    #                            jd_content, 
-                    #                            user_input)
-                    # router_response = router_agent.execute()
-                    # def recruiter_agent_tool(resume_content, jd_content, user_input):
-                    #     return recruiter_agent.execute(resume_content, jd_content, user_input)
-                    # def knowledge_agent_tool(resume_content, jd_content, user_input):
-                    #     return knowledge_agent.execute(resume_content, jd_content, user_input)
                     @tool
                     def recruiter_agent_tool() -> str:
                         """
