@@ -5,6 +5,8 @@ import hashlib
 import json
 
 load_dotenv()
+current_dir = os.path.dirname(os.path.abspath(__file__))
+ssl_ca_path = os.path.join(current_dir, os.getenv("TIDB_SSL_CA"))
 
 def compute_hash(content: str) -> str:
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
@@ -16,8 +18,10 @@ def get_tidb_connection():
         user=os.getenv("TIDB_USERNAME"),
         password=os.getenv("TIDB_PASSWORD"),
         database=os.getenv("TIDB_DATABASE"),
-        ssl_verify_cert=True,
-        ssl_verify_identity=True
+        ssl_ca=ssl_ca_path, 
+        # ssl_verify_cert=True,
+        # ssl_verify_identity=True
+        autocommit=True
     )
 
 def insert_job_description(cursor, jd_content, jd_data):
