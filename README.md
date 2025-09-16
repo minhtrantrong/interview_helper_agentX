@@ -6,7 +6,7 @@ This is an agentic AI chatbot application built using Streamlit. It features a c
 
 - **Interactive Chat Interface**: A real-time, conversational UI built with Streamlit's native chat components.
 - **Agentic AI Integration**: Leverages the power of the **Gemini 2.5 Flash** model for fast and intelligent responses.
-- **Document Upload**: Users can upload various document types (`.pdf`, `.docx`, `.txt`, `.csv`) for the AI agent to reference (future implementation).
+- **Document Upload**: Users can upload PDF document (`.pdf`) for the AI agent to reference (future implementation).
 - **Secure API Key Management**: Uses a `.env` file to securely store and load the Google Gemini API key.
 - **Clean UI**: A two-panel layout with a sidebar for document management and a main area for the chat conversation.
 
@@ -33,15 +33,12 @@ Follow these steps to get the application up and running on your local machine.
 ## Install the required packages
 `pip install -r requirements.txt`
 ## SSL certificate
-Download TIDB_SSL_CA from TIDB
-.env 
-TIDB_SSL_CA=path/to/your/TIDB_SSL_CA
+Has been downloaded from the TIDB 
+
 
 ## Configure database TIDB
 database name: recruitment
 SQL editor:
-
-
 
 USE recruitment;
 CREATE TABLE job_descriptions (
@@ -95,4 +92,5 @@ Make sure to replace YOUR_API_KEY_HERE with your actual key.
 ## Run the application
 Once the setup is complete, you can start the Streamlit application.
     `streamlit run agentX.py`
+## Upload your resume and job description in PDF format and chat with the AI agent
 
