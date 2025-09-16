@@ -172,7 +172,6 @@ if user_input := st.chat_input("What do you need help with?"):
                             }
                         """
                         return extract_agent.execute(resume_content, jd_content)
-                                        
                     prompt = PromptTemplate.from_template(TOOLS_PROMPT)
                     formatted_prompt = prompt.format(resume_content=resume_content, 
                                                      jd_content=jd_content, 

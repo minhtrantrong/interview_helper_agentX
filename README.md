@@ -36,19 +36,10 @@ Follow these steps to get the application up and running on your local machine.
 ## Configure database TIDB
 database name: recruitment
 SQL editor:
-CREATE TABLE resumes (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NULL,
-    email VARCHAR(255) NULL,
-    phone VARCHAR(50) NULL,
-    education JSON NULL,
-    work_experience JSON NULL,
-    skills JSON NULL,
-    certifications JSON NULL,
-    languages JSON NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
+
+
+USE recruitment;
 CREATE TABLE job_descriptions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     job_title VARCHAR(255) NULL,
@@ -63,6 +54,28 @@ CREATE TABLE job_descriptions (
     jd_hash CHAR(64) NULL UNIQUE, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+USE recruitment;
+
+CREATE TABLE candidates (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    job_id BIGINT NOT NULL,  -- liên kết tới job_descriptions
+    name VARCHAR(255) NULL,
+    email VARCHAR(255) NULL,
+    phone VARCHAR(50) NULL,
+    education JSON NULL,
+    work_experience JSON NULL,
+    skills JSON NULL,
+    certifications JSON NULL,
+    languages JSON NULL,
+    cv_hash CHAR(64) NULL UNIQUE,  -- nếu muốn tracking CV trùng
+    match_score DECIMAL(5,2) NULL, -- nếu dùng điểm đánh giá CV
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (job_id) REFERENCES job_descriptions(id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
 
 ## Configure your API Key
 The application requires a Google Gemini API key to function.
