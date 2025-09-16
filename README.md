@@ -32,6 +32,10 @@ Follow these steps to get the application up and running on your local machine.
 
 ## Install the required packages
 `pip install -r requirements.txt`
+## SSL certificate
+Download TIDB_SSL_CA from TIDB
+.env 
+TIDB_SSL_CA=path/to/your/TIDB_SSL_CA
 
 ## Configure database TIDB
 database name: recruitment
